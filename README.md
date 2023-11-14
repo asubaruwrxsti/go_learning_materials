@@ -254,3 +254,121 @@
                     fmt.Println(f.Abs())
                 }
             ```
+* Interfaces
+    * An interface type is defined as a set of method signatures.
+    * A value of interface type can hold any value that implements those methods.
+        ```
+            type Abser interface {
+                Abs() float64
+            }
+
+            func main() {
+                var a Abser
+                f := MyFloat(-math.Sqrt2)
+                v := Vertex{3, 4}
+
+                a = f  // a MyFloat implements Abser
+                a = &v // a *Vertex implements Abser
+
+                // In the following line, v is a Vertex (not *Vertex)
+                // and does NOT implement Abser.
+                a = v
+
+                fmt.Println(a.Abs())
+            }
+
+            type MyFloat float64
+
+            func (f MyFloat) Abs() float64 {
+                if f < 0 {
+                    return float64(-f)
+                }
+                return float64(f)
+            }
+
+            type Vertex struct {
+                X, Y float64
+            }
+
+            func (v *Vertex) Abs() float64 {
+                return math.Sqrt(v.X*v.X + v.Y*v.Y)
+            }
+        ```
+    * A type implements an interface by implementing its methods. There is no explicit declaration of intent, no "implements" keyword.
+        ```
+            type I interface {
+                M()
+            }
+
+            type T struct {
+                S string
+            }
+
+            // This method means type T implements the interface I,
+            // but we don't need to explicitly declare that it does so.
+            func (t T) M() {
+                fmt.Println(t.S)
+            }
+
+            func main() {
+                var i I = T{"hello"}
+                i.M()
+            }
+        ```
+    * Under the hood, interface values can be thought of as a tuple of a value and a concrete type:
+        (value, type)
+    * An interface value holds a value of a specific underlying concrete type.
+    * Calling a method on an interface value executes the method of the same name on its underlying type.
+* Type switches
+    * A type switch is a construct that permits several type assertions in series.
+    * A type switch is like a regular switch statement, but the cases in a type switch specify types (not values), and those values are compared against the type of the value held by the given interface value.
+        ```
+            switch v := i.(type) {
+                case T:
+                    // here v has type T
+                case S:
+                    // here v has type S
+                default:
+                    // no match; here v has the same type as i
+                }
+        ```
+    * Sample:
+        ```
+            func do(i interface{}) {
+                switch v := i.(type) {
+                case int:
+                    fmt.Printf("Twice %v is %v\n", v, v*2)
+                case string:
+                    fmt.Printf("%q is %v bytes long\n", v, len(v))
+                default:
+                    fmt.Printf("I don't know about type %T!\n", v)
+                }
+            }
+
+            func main() {
+                do(21)
+                do("hello")
+                do(true)
+            }
+        ```
+* Readers
+    * The io package specifies the io.Reader interface, which represents the read end of a stream of data.
+    * Read populates the given byte slice with data and returns the number of bytes populated and an error value. It returns an io.EOF error when the stream ends.
+        ```
+            func main() {
+                r := strings.NewReader("Hello, Reader!")
+
+                b := make([]byte, 8)
+                for {
+                    n, err := r.Read(b)
+                    fmt.Printf("n = %v err = %v b = %v\n", n, err, b)
+                    fmt.Printf("b[:n] = %q\n", b[:n])
+                    if err == io.EOF {
+                        break
+                    }
+                }
+            }
+        ```
+
+
+
