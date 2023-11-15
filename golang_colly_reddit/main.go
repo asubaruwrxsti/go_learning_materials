@@ -44,7 +44,6 @@ func main() {
 		temp.Title = e.ChildText("a[data-event-action=title]")
 		temp.Comments = e.ChildAttr("a[data-event-action=comments]", "href")
 		temp.CrawledAt = time.Now()
-		fmt.Println(temp)
 		stories = append(stories, temp)
 	})
 
@@ -75,8 +74,8 @@ func main() {
 		fmt.Println("Crawling", reddit)
 		c.Visit(reddit)
 	}
-	fmt.Println("Crawling complete")
 
 	c.Wait()
-	fmt.Println(stories)
+	fmt.Println(stories[0].StoryURL)
+	fmt.Println("Crawling complete")
 }
