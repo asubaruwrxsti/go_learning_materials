@@ -19,6 +19,7 @@ func CrawlRedditComments(c *colly.Collector, redditURL string) []redditComment {
 	var comments []redditComment
 
 	c.OnHTML("div.commentarea div.usertext-body div.md", func(e *colly.HTMLElement) {
+		fmt.Println("Found comment:", e.Text)
 		comments = append(comments, redditComment{
 			CommentURL: e.Request.URL.String(),
 			Source:     "reddit",
