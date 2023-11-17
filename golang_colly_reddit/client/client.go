@@ -3,65 +3,24 @@ package main
 import (
 	"fmt"
 	"os"
-	"time"
 	"strconv"
+	"time"
+
+	"golang_colly_reddit/comments"
 
 	"github.com/gocolly/colly"
 )
 
 type item struct {
-	StoryURL  string
-	Source    string
-	CrawledAt time.Time
-	Comments  string
-	Title     string
-}
-
-type comment struct {
-	CommentURL string
-	Source     string
-	CrawledAt  time.Time
-	Comment    string
+	StoryURL    string
+	Source      string
+	CrawledAt   time.Time
+	CommentsUrl string
+	Title       string
 }
 
 func (i item) toString() string {
-	return fmt.Sprintf("Source: %s\nTitle: %s\nStoryURL: %s\nComments: %s\nCrawledAt: %s\n\n", i.Source, i.Title, i.StoryURL, i.Comments, i.CrawledAt)
-}
-
-func getComments(c *colly.Collector, comments *[]comment) {
-	// On every a element which has .top-matter attribute call callback
-	// This class is unique to the div that holds all information about a story
-	c.OnHTML(".commentarea", func(e *colly.HTMLElement) {
-		temp := comment{}
-		temp.CommentURL = e.ChildAttr("a[data-event-action=comments]", "href")
-		temp.Source = "reddit.com"
-		temp.Comment = e.ChildText("a[data-event-action=comments]")
-		temp.CrawledAt = time.Now()
-		*comments = append(*comments, temp)
-	})
-
-	// On every span tag with the class next-button
-	c.OnHTML("span.next-button", func(h *colly.HTMLElement) {
-		t := h.ChildAttr("a", "href")
-		c.Visit(t)
-	})
-
-	// Set max Parallelism and introduce a Random Delay
-	c.Limit(&colly.LimitRule{
-		Parallelism: 2,
-		RandomDelay: 5 * time.Second,
-	})
-
-	// Before making a request print "Visiting ..."
-	c.OnRequest(func(r *colly.Request) {
-		fmt.Println("Visiting", r.URL.String())
-		fmt.Println("")
-	})
-
-	// Error handling for HTTP requests
-	c.OnError(func(r *colly.Response, err error) {
-		fmt.Println("Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err)
-	})
+	return fmt.Sprintf("Source: %s\nTitle: %s\nStoryURL: %s\nComments: %s\nCrawledAt: %s\n\n", i.Source, i.Title, i.StoryURL, i.CommentsUrl, i.CrawledAt)
 }
 
 func main() {
@@ -101,15 +60,11 @@ func main() {
 		}
 	}
 
-	// declare a slice of items
 	// var stories []item
 	stories := []item{}
-	// var comments []comment
-	comments := []comment{}
 
 	// Instantiate default collector
 	c := colly.NewCollector(
-		// Visit only domains: old.reddit.com
 		colly.AllowedDomains("old.reddit.com"),
 		colly.Async(true),
 	)
@@ -125,7 +80,7 @@ func main() {
 		temp.StoryURL = e.ChildAttr("a[data-event-action=title]", "href")
 		temp.Source = reddits[0]
 		temp.Title = e.ChildText("a[data-event-action=title]")
-		temp.Comments = e.ChildAttr("a[data-event-action=comments]", "href")
+		temp.CommentsUrl = e.ChildAttr("a[data-event-action=comments]", "href")
 		temp.CrawledAt = time.Now()
 		stories = append(stories, temp)
 		count_post++
@@ -163,12 +118,11 @@ func main() {
 	}
 
 	c.Wait()
-	getComments(c.Clone(), &comments)
 	for _, story := range stories {
-		fmt.Println(story.toString())
-		for _, comment := range comments {
-			fmt.Println(comment)
-		}
+		// fmt.Println(story.toString())
+		storyComments := comments.CrawlRedditComments(c, story.CommentsUrl)
+		fmt.Println("Comments:")
+		fmt.Println(storyComments)
 	}
 	fmt.Println("Crawling complete")
 }

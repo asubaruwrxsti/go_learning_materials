@@ -1,4 +1,4 @@
-module example/colly
+module golang_colly_reddit
 
 go 1.21.4
 
