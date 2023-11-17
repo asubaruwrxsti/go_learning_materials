@@ -20,7 +20,7 @@ type item struct {
 }
 
 func (i item) toString() string {
-	return fmt.Sprintf("Source: %s\nTitle: %s\nStoryURL: %s\nComments: %s\nCrawledAt: %s\n\n", i.Source, i.Title, i.StoryURL, i.CommentsUrl, i.CrawledAt)
+	return fmt.Sprintf("Source: %s\nTitle: %s\nStoryURL: %s\nCommentsUrl: %s\nCrawledAt: %s\n\n", i.Source, i.Title, i.StoryURL, i.CommentsUrl, i.CrawledAt)
 }
 
 func main() {
@@ -59,6 +59,7 @@ func main() {
 			os.Exit(1)
 		}
 	}
+	fmt.Println("")
 
 	// var stories []item
 	stories := []item{}
@@ -103,8 +104,8 @@ func main() {
 
 	// Before making a request print "Visiting ..."
 	c.OnRequest(func(r *colly.Request) {
-		fmt.Println("Visiting", r.URL.String())
-		fmt.Println("")
+		// fmt.Println("Visiting", r.URL.String())
+		// fmt.Println("")
 	})
 
 	// Error handling for HTTP requests
@@ -119,10 +120,11 @@ func main() {
 
 	c.Wait()
 	for _, story := range stories {
-		// fmt.Println(story.toString())
+		fmt.Println(story.toString())
 		storyComments := comments.CrawlRedditComments(c, story.CommentsUrl)
 		fmt.Println("Comments:")
 		fmt.Println(storyComments)
+		fmt.Println("")
 	}
-	fmt.Println("Crawling complete")
+	defer fmt.Println("Crawling complete")
 }

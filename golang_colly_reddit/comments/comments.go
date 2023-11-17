@@ -16,7 +16,6 @@ type redditComment struct {
 
 // crawls the comments of a reddit post
 func CrawlRedditComments(c *colly.Collector, redditURL string) []redditComment {
-	fmt.Println("Visiting", redditURL)
 	var comments []redditComment
 
 	c.OnHTML("div.commentarea div.comment", func(e *colly.HTMLElement) {
@@ -24,13 +23,17 @@ func CrawlRedditComments(c *colly.Collector, redditURL string) []redditComment {
 			CommentURL: e.Request.URL.String(),
 			Source:     "reddit",
 			CrawledAt:  time.Now(),
-			Comment:    e.ChildText("div.usertext-body"),
+			Comment:    e.ChildText("div.usertext-body may-blank-within md-container"),
 		}
 		comments = append(comments, comment)
 	})
 
 	c.OnRequest(func(r *colly.Request) {
-		fmt.Println("Visiting", r.URL)
+		// fmt.Println("Visiting", r.URL)
+	})
+
+	c.OnError(func(r *colly.Response, err error) {
+		fmt.Println("Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err)
 	})
 
 	c.Visit(redditURL)
