@@ -34,7 +34,7 @@ func main() {
 	}
 
 	// Limit the number of posts to crawl
-	defaultLimitPost := 3
+	defaultLimitPost := 1
 
 	switch len(os.Args) {
 	case 1:

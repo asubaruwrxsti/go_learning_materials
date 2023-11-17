@@ -18,14 +18,13 @@ type redditComment struct {
 func CrawlRedditComments(c *colly.Collector, redditURL string) []redditComment {
 	var comments []redditComment
 
-	c.OnHTML("div.commentarea div.comment", func(e *colly.HTMLElement) {
-		comment := redditComment{
+	c.OnHTML("div.usertext-body may-blank-within md-container div.md", func(e *colly.HTMLElement) {
+		comments = append(comments, redditComment{
 			CommentURL: e.Request.URL.String(),
 			Source:     "reddit",
 			CrawledAt:  time.Now(),
-			Comment:    e.ChildText("div.usertext-body may-blank-within md-container"),
-		}
-		comments = append(comments, comment)
+			Comment:    e.Text,
+		})
 	})
 
 	c.OnRequest(func(r *colly.Request) {
