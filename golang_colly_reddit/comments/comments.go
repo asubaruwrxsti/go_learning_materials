@@ -1,6 +1,7 @@
 package comments
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gocolly/colly"
@@ -11,6 +12,10 @@ type redditComment struct {
 	Source     string
 	CrawledAt  time.Time
 	Comment    string
+}
+
+func (rc redditComment) ToString() string {
+	return fmt.Sprintf("Source: %s\nCommentURL: %s\nCrawledAt: %s\nComment: %s", rc.Source, rc.CommentURL, rc.CrawledAt, rc.Comment)
 }
 
 // crawls the comments of a reddit post

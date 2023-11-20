@@ -35,7 +35,7 @@ func main() {
 
 	// Limit the number of posts to crawl
 	defaultLimitPost := 1
-	defaultLimitComment := 1
+	defaultLimitComment := 3
 
 	switch len(os.Args) {
 	case 1:
@@ -124,11 +124,11 @@ func main() {
 		fmt.Println(story.toString())
 		storyComments, err_ := comments.CrawlRedditComments(c, story.CommentsUrl, defaultLimitComment)
 		if err_ != nil {
-			fmt.Println("Error crawling comments:", err_)
+			fmt.Println("Error crawling comment:", err_)
 		}
-		fmt.Println("Comments:")
-		fmt.Println(storyComments)
-		fmt.Println("")
+		for _, comment := range storyComments {
+			fmt.Println(comment.ToString())
+		}
 	}
 	defer fmt.Println("Crawling complete")
 }
