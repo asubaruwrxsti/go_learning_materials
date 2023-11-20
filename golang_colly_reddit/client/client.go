@@ -52,7 +52,7 @@ func main() {
 		fmt.Println("Using custom number of posts to crawl:", os.Args[2])
 		fmt.Println("Using custom number of comments to crawl:", defaultLimitComment)
 	default:
-		fmt.Println("Too many arguments. Please provide only one subreddit to crawl.")
+		fmt.Println("Too many arguments. Please provide [subreddit] [limit_post] [limit_comment]")
 		os.Exit(1)
 	}
 
