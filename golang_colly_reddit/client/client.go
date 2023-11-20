@@ -34,8 +34,9 @@ func main() {
 	}
 
 	// Limit the number of posts to crawl
+	// maybe set them as env variables ?
 	defaultLimitPost := 1
-	defaultLimitComment := 3
+	defaultLimitComment := 1
 
 	switch len(os.Args) {
 	case 1:
@@ -43,8 +44,13 @@ func main() {
 		os.Exit(1)
 	case 2:
 		fmt.Println("Using default number of posts to crawl:", defaultLimitPost)
+		fmt.Println("Using default number of comments to crawl:", defaultLimitComment)
 	case 3:
 		fmt.Println("Using custom number of posts to crawl:", os.Args[2])
+		fmt.Println("Using default number of comments to crawl:", defaultLimitComment)
+	case 4:
+		fmt.Println("Using custom number of posts to crawl:", os.Args[2])
+		fmt.Println("Using custom number of comments to crawl:", defaultLimitComment)
 	default:
 		fmt.Println("Too many arguments. Please provide only one subreddit to crawl.")
 		os.Exit(1)
@@ -57,6 +63,16 @@ func main() {
 		limit_post, err = strconv.Atoi(os.Args[2])
 		if err != nil {
 			fmt.Println("Please provide a valid number of posts to crawl.")
+			os.Exit(1)
+		}
+	}
+	limit_comment := defaultLimitComment
+	if len(os.Args) > 3 {
+		// Convert the custom limit_comment to an integer
+		var err error
+		limit_comment, err = strconv.Atoi(os.Args[3])
+		if err != nil {
+			fmt.Println("Please provide a valid number of comments to crawl.")
 			os.Exit(1)
 		}
 	}
@@ -122,7 +138,7 @@ func main() {
 	c.Wait()
 	for _, story := range stories {
 		fmt.Println(story.toString())
-		storyComments, err_ := comments.CrawlRedditComments(c, story.CommentsUrl, defaultLimitComment)
+		storyComments, err_ := comments.CrawlRedditComments(c, story.CommentsUrl, limit_comment)
 		if err_ != nil {
 			fmt.Println("Error crawling comment:", err_)
 		}
