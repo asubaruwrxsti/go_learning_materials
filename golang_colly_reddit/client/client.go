@@ -121,7 +121,10 @@ func main() {
 	c.Wait()
 	for _, story := range stories {
 		fmt.Println(story.toString())
-		storyComments := comments.CrawlRedditComments(c, story.CommentsUrl)
+		storyComments, err_ := comments.CrawlRedditComments(c, story.CommentsUrl)
+		if err_ != nil {
+			fmt.Println("Error crawling comments:", err_)
+		}
 		fmt.Println("Comments:")
 		fmt.Println(storyComments)
 		fmt.Println("")
