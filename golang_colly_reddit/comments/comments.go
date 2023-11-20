@@ -1,7 +1,6 @@
 package comments
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/gocolly/colly"
@@ -15,18 +14,22 @@ type redditComment struct {
 }
 
 // crawls the comments of a reddit post
-func CrawlRedditComments(c *colly.Collector, redditURL string) ([]redditComment, error) {
+func CrawlRedditComments(c *colly.Collector, redditURL string, defaultLimitComment int) ([]redditComment, error) {
 	var comments []redditComment
 	var err_ error
+	limit_comment := 0
 
-	c.OnHTML("div.commentarea div.usertext-body div.md", func(e *colly.HTMLElement) {
-		fmt.Println("Found comment:", e.Text)
+	c.OnHTML(".entry .usertext .usertext-body", func(e *colly.HTMLElement) {
+		if limit_comment >= defaultLimitComment {
+			return
+		}
 		comments = append(comments, redditComment{
 			CommentURL: e.Request.URL.String(),
 			Source:     "reddit",
 			CrawledAt:  time.Now(),
 			Comment:    e.Text,
 		})
+		limit_comment++
 	})
 
 	c.OnError(func(r *colly.Response, err error) {
@@ -34,5 +37,6 @@ func CrawlRedditComments(c *colly.Collector, redditURL string) ([]redditComment,
 	})
 
 	c.Visit(redditURL)
+	c.Wait()
 	return comments, err_
 }
