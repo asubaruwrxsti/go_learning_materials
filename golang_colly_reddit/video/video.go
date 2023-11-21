@@ -13,7 +13,7 @@ import (
 	"golang.org/x/image/math/fixed"
 )
 
-type redditVideo struct {
+type RedditVideo struct {
 	VideoMeta map[string]interface{} `json:"video_meta"`
 	Source    string                 `json:"source"`
 }
@@ -26,7 +26,7 @@ type redditVideo struct {
 // size: int
 // path: string
 
-func (rv redditVideo) ToString() string {
+func (rv RedditVideo) ToString() string {
 	return fmt.Sprintf("Source: %s\nVideoMeta: %s", rv.Source, rv.VideoMeta)
 }
 
@@ -67,6 +67,7 @@ func saveImage(img *image.RGBA, filename string, path string) error {
 	if err := png.Encode(f, img); err != nil {
 		return err
 	}
+	return nil
 }
 
 /* CreateRedditVideo creates a video from a reddit post
@@ -74,5 +75,8 @@ func saveImage(img *image.RGBA, filename string, path string) error {
  * storyComments: []string
  */
 func CreateRedditVideo(videoMeta map[string]interface{}, storyComments []string, path string) error {
-
+	fmt.Println(videoMeta)
+	fmt.Println(storyComments)
+	fmt.Println(path)
+	return nil
 }

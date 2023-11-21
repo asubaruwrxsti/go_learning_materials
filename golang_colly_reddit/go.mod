@@ -2,7 +2,10 @@ module golang_colly_reddit
 
 go 1.21.4
 
-require github.com/gocolly/colly v1.2.0
+require (
+	github.com/gocolly/colly v1.2.0
+	golang.org/x/image v0.14.0
+)
 
 require (
 	github.com/PuerkitoBio/goquery v1.8.1 // indirect

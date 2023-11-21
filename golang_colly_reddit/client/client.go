@@ -140,26 +140,33 @@ func main() {
 	c.Wait()
 	for _, story := range stories {
 		fmt.Println(story.toString())
-		storyComments, err_ := comments.CrawlRedditComments(c, story.CommentsUrl, limit_comment)
-		if err_ != nil {
-			fmt.Println("Error crawling comment:", err_)
+		storyComments, err := comments.CrawlRedditComments(c, story.CommentsUrl, limit_comment)
+		if err != nil {
+			fmt.Println("Error crawling comment:", err)
+			continue
 		}
+
 		for _, comment := range storyComments {
 			fmt.Println(comment.ToString())
 		}
 
-		metadata := comments.redditVideo{
-			VideoMeta: make(map[string]interface{}),
-			Source:    story.Source,
+		metadataMap := map[string]interface{}{
+			"VideoMeta": map[string]interface{}{
+				"length": len(storyComments) * 10,
+				"height": 1280,
+				"width":  720,
+				"dpi":    72,
+				"size":   0,
+			},
+			"Source": story.Source,
 		}
 
-		metadata.VideoMeta["length"] = len(storyComments) * 10
-		metadata.VideoMeta["height"] = 1280
-		metadata.VideoMeta["width"] = 720
-		metadata.VideoMeta["dpi"] = 72
-		metadata.VideoMeta["size"] = 0
+		storyCommentsStrings := make([]string, len(storyComments))
+		for i, comment := range storyComments {
+			storyCommentsStrings[i] = comment.ToString()
+		}
 
-		if err := video.CreateRedditVideo(metadata, storyComments, defaultPath); err != nil {
+		if err := video.CreateRedditVideo(metadataMap, storyCommentsStrings, defaultPath); err != nil {
 			fmt.Println("Error creating video:", err)
 		}
 	}
