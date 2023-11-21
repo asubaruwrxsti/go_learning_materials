@@ -5,15 +5,14 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"image/draw"
 	"image/png"
 	"os"
 	"time"
 
 	"golang_colly_reddit/video/videoUtilities"
 
-	"golang.org/x/image/font"
-	"golang.org/x/image/font/basicfont"
-	"golang.org/x/image/math/fixed"
+	"github.com/golang/freetype"
 )
 
 type RedditVideo struct {
@@ -46,15 +45,23 @@ func addTextToImage(img *image.RGBA, x_offset int, y_offset int, text string) er
 	}
 
 	col := color.RGBA{200, 100, 0, 255}
-	point := fixed.Point26_6{fixed.Int26_6(x_offset), fixed.Int26_6(y_offset)}
-
-	d := &font.Drawer{
-		Dst:  img,
-		Src:  image.NewUniform(col),
-		Face: basicfont.Face7x13,
-		Dot:  point,
+	draw.Draw(img, img.Bounds(), &image.Uniform{col}, image.ZP, draw.Src)
+	c := freetype.NewContext()
+	c.SetDPI(72)
+	font, err := videoUtilities.LoadFont("/home/arlind/Desktop/go_learning_materials/golang_colly_reddit/video/fonts/Maleha.ttf")
+	if err != nil {
+		return err
 	}
-	d.DrawString(text)
+	c.SetFont(font)
+	c.SetFontSize(12)
+	c.SetClip(img.Bounds())
+	c.SetDst(img)
+	c.SetSrc(image.Black)
+	pt := freetype.Pt(x_offset, y_offset+int(c.PointToFixed(12)>>6))
+	_, err = c.DrawString(text, pt)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -110,8 +117,8 @@ func CreateRedditVideo(videoMeta map[string]interface{}, storyComments []string,
 	}
 
 	// Add text to the frame
-	for i, comment := range storyComments {
-		if err := addTextToImage(img, 10, i*500, comment); err != nil {
+	for i, cmt := range storyComments {
+		if err := addTextToImage(img, 10, i*500, cmt); err != nil {
 			return err
 		}
 	}
