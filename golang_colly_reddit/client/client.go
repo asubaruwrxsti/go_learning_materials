@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"golang_colly_reddit/comments"
+	"golang_colly_reddit/video"
 
 	"github.com/gocolly/colly"
 )
@@ -144,6 +145,17 @@ func main() {
 		}
 		for _, comment := range storyComments {
 			fmt.Println(comment.ToString())
+		}
+
+		videoMeta := map[string]int{
+			"length": len(storyComments) * 10,
+			"height": 720,
+			"width":  1280,
+			"dpi":    72,
+			"size":   0,
+		}
+		if _, err := video.CreateRedditVideo(videoMeta, storyComments); err != nil {
+			fmt.Println("Error creating video:", err)
 		}
 	}
 	defer fmt.Println("Crawling complete")
