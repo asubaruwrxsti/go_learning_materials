@@ -72,7 +72,6 @@ func saveImage(img *image.RGBA, filename string, path string) error {
  * videoMeta: map[string]int
  * storyComments: []string
  */
-
 func CreateRedditVideo(videoMeta map[string]int, storyComments []string) error {
 
 }
