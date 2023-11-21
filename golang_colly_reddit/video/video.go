@@ -6,7 +6,10 @@ import (
 	"image"
 	"image/color"
 	"image/png"
+	"io/ioutil"
 	"os"
+	"path/filepath"
+	"time"
 
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/basicfont"
@@ -30,16 +33,40 @@ func (rv RedditVideo) ToString() string {
 	return fmt.Sprintf("Source: %s\nVideoMeta: %s", rv.Source, rv.VideoMeta)
 }
 
+func isDir(path string) bool {
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return fileInfo.IsDir()
+}
+
+func emptyDir(path string) error {
+	files, err := ioutil.ReadDir(path)
+	if err != nil {
+		return err
+	}
+
+	for _, file := range files {
+		err := os.RemoveAll(filepath.Join(path, file.Name()))
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func generateBlankFrame(width int, height int) (*image.RGBA, error) {
 	if width < 1 || height < 1 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errors.New("invalid parameters")
 	}
 	return image.NewRGBA(image.Rect(0, 0, width, height)), nil
 }
 
 func addTextToImage(img *image.RGBA, x_offset int, y_offset int, text string) error {
 	if img == nil || x_offset < 0 || y_offset < 0 || text == "" {
-		return errors.New("Invalid parameters")
+		return errors.New("invalid parameters")
 	}
 
 	col := color.RGBA{200, 100, 0, 255}
@@ -57,8 +84,25 @@ func addTextToImage(img *image.RGBA, x_offset int, y_offset int, text string) er
 
 func saveImage(img *image.RGBA, filename string, path string) error {
 	if img == nil || filename == "" {
-		return errors.New("Invalid parameters")
+		return errors.New("invalid parameters")
 	}
+
+	// check if path exists
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		fmt.Println("Path does not exist, creating path...")
+		os.Mkdir(path, 0755)
+	}
+
+	// check if the path is a directory
+	if !isDir(path) {
+		return errors.New("path is not a directory")
+	} else {
+		// empty the directory
+		if err := emptyDir(path); err != nil {
+			return err
+		}
+	}
+
 	f, err := os.Create(path + filename)
 	if err != nil {
 		return err
@@ -75,8 +119,30 @@ func saveImage(img *image.RGBA, filename string, path string) error {
  * storyComments: []string
  */
 func CreateRedditVideo(videoMeta map[string]interface{}, storyComments []string, path string) error {
-	fmt.Println(videoMeta)
-	fmt.Println(storyComments)
-	fmt.Println(path)
+	defer fmt.Println("Image created successfully !")
+
+	if videoMeta == nil || storyComments == nil || path == "" {
+		return errors.New("invalid parameters")
+	}
+	var videoHeight int = videoMeta["VideoMeta"].(map[string]interface{})["height"].(int)
+	var videoWidth int = videoMeta["VideoMeta"].(map[string]interface{})["width"].(int)
+
+	// // Create a blank frame
+	img, err := generateBlankFrame(videoWidth, videoHeight)
+	if err != nil {
+		return err
+	}
+
+	// // Add text to the frame
+	for i, comment := range storyComments {
+		if err := addTextToImage(img, 10, i*500, comment); err != nil {
+			return err
+		}
+	}
+
+	// // Save the image
+	if err := saveImage(img, "test"+time.Now().String()+".jpg", path); err != nil {
+		return err
+	}
 	return nil
 }

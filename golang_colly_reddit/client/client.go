@@ -153,8 +153,8 @@ func main() {
 		metadataMap := map[string]interface{}{
 			"VideoMeta": map[string]interface{}{
 				"length": len(storyComments) * 10,
-				"height": 1280,
-				"width":  720,
+				"height": 720,
+				"width":  1280,
 				"dpi":    72,
 				"size":   0,
 			},
