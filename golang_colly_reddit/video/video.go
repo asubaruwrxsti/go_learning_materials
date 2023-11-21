@@ -14,8 +14,8 @@ import (
 )
 
 type redditVideo struct {
-	VideoMeta map[string]int
-	Source    string
+	VideoMeta map[string]interface{} `json:"video_meta"`
+	Source    string                 `json:"source"`
 }
 
 // VideoMeta holds
@@ -24,6 +24,7 @@ type redditVideo struct {
 // width: int
 // dpi: int
 // size: int
+// path: string
 
 func (rv redditVideo) ToString() string {
 	return fmt.Sprintf("Source: %s\nVideoMeta: %s", rv.Source, rv.VideoMeta)
@@ -72,6 +73,6 @@ func saveImage(img *image.RGBA, filename string, path string) error {
  * videoMeta: map[string]int
  * storyComments: []string
  */
-func CreateRedditVideo(videoMeta map[string]int, storyComments []string, path string) error {
+func CreateRedditVideo(videoMeta map[string]interface{}, storyComments []string, path string) error {
 
 }

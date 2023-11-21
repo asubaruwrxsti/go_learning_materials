@@ -148,14 +148,18 @@ func main() {
 			fmt.Println(comment.ToString())
 		}
 
-		videoMeta := map[string]int{
-			"length": len(storyComments) * 10,
-			"height": 720,
-			"width":  1280,
-			"dpi":    72,
-			"size":   0,
+		metadata := comments.redditVideo{
+			VideoMeta: make(map[string]interface{}),
+			Source:    story.Source,
 		}
-		if err := video.CreateRedditVideo(videoMeta, storyComments, defaultPath); err != nil {
+
+		metadata.VideoMeta["length"] = len(storyComments) * 10
+		metadata.VideoMeta["height"] = 1280
+		metadata.VideoMeta["width"] = 720
+		metadata.VideoMeta["dpi"] = 72
+		metadata.VideoMeta["size"] = 0
+
+		if err := video.CreateRedditVideo(metadata, storyComments, defaultPath); err != nil {
 			fmt.Println("Error creating video:", err)
 		}
 	}
