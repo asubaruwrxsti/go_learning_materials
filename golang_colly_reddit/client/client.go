@@ -38,6 +38,7 @@ func main() {
 	// maybe set them as env variables ?
 	defaultLimitPost := 1
 	defaultLimitComment := 1
+	defaultPath := "videos/"
 
 	switch len(os.Args) {
 	case 1:
@@ -154,7 +155,7 @@ func main() {
 			"dpi":    72,
 			"size":   0,
 		}
-		if _, err := video.CreateRedditVideo(videoMeta, storyComments); err != nil {
+		if err := video.CreateRedditVideo(videoMeta, storyComments, defaultPath); err != nil {
 			fmt.Println("Error creating video:", err)
 		}
 	}
