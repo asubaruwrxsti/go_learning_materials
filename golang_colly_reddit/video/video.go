@@ -6,10 +6,10 @@ import (
 	"image"
 	"image/color"
 	"image/png"
-	"io/ioutil"
 	"os"
-	"path/filepath"
 	"time"
+
+	"golang_colly_reddit/video/videoUtilities"
 
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/basicfont"
@@ -31,30 +31,6 @@ type RedditVideo struct {
 
 func (rv RedditVideo) ToString() string {
 	return fmt.Sprintf("Source: %s\nVideoMeta: %s", rv.Source, rv.VideoMeta)
-}
-
-func isDir(path string) bool {
-	fileInfo, err := os.Stat(path)
-	if err != nil {
-		return false
-	}
-	return fileInfo.IsDir()
-}
-
-func emptyDir(path string) error {
-	files, err := ioutil.ReadDir(path)
-	if err != nil {
-		return err
-	}
-
-	for _, file := range files {
-		err := os.RemoveAll(filepath.Join(path, file.Name()))
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
 
 func generateBlankFrame(width int, height int) (*image.RGBA, error) {
@@ -94,11 +70,11 @@ func saveImage(img *image.RGBA, filename string, path string) error {
 	}
 
 	// check if the path is a directory
-	if !isDir(path) {
+	if !videoUtilities.IsDir(path) {
 		return errors.New("path is not a directory")
 	} else {
 		// empty the directory
-		if err := emptyDir(path); err != nil {
+		if err := videoUtilities.EmptyDir(path); err != nil {
 			return err
 		}
 	}
@@ -127,20 +103,20 @@ func CreateRedditVideo(videoMeta map[string]interface{}, storyComments []string,
 	var videoHeight int = videoMeta["VideoMeta"].(map[string]interface{})["height"].(int)
 	var videoWidth int = videoMeta["VideoMeta"].(map[string]interface{})["width"].(int)
 
-	// // Create a blank frame
+	// Create a blank frame
 	img, err := generateBlankFrame(videoWidth, videoHeight)
 	if err != nil {
 		return err
 	}
 
-	// // Add text to the frame
+	// Add text to the frame
 	for i, comment := range storyComments {
 		if err := addTextToImage(img, 10, i*500, comment); err != nil {
 			return err
 		}
 	}
 
-	// // Save the image
+	// Save the image
 	if err := saveImage(img, "test"+time.Now().String()+".jpg", path); err != nil {
 		return err
 	}
