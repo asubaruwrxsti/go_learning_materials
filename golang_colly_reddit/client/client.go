@@ -88,6 +88,7 @@ func main() {
 		colly.AllowedDomains("old.reddit.com"),
 		colly.Async(true),
 	)
+	c.UserAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
 
 	var count_post int = 0
 	// On every a element which has .top-matter attribute call callback
@@ -129,7 +130,7 @@ func main() {
 
 	// Error handling for HTTP requests
 	c.OnError(func(r *colly.Response, err error) {
-		fmt.Println("Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err)
+		fmt.Printf("Request URL: %s\nResponse Status: %d\nResponse Body: %s\nError: %s\n", r.Request.URL, r.StatusCode, r.Body, err)
 	})
 
 	// Crawl all reddits the user passes in
